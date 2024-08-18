@@ -56,9 +56,10 @@
       const maintainSpace = document.querySelector('.maintain-space');
       let originalWidth, originalHeight, viz;
 
-      // Tableau visualization source URL
-      let src =
+      // Tableau visualization source URL and mediaWidth
+      const src =
         'https://public.tableau.com/views/_17212102503700/sheet0?:language=zh-TW&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link';
+      const mediaWidth = 768;
 
       // Function to load the Tableau dashboard
       function loadViz() {
@@ -73,7 +74,7 @@
         tableauViz.setAttribute('src', src);
 
         // Set device type based on container width
-        if (containerWidth <= 768) {
+        if (containerWidth <= mediaWidth) {
           tableauViz.setAttribute('device', 'phone');
         } else {
           tableauViz.setAttribute('device', 'desktop');
@@ -89,7 +90,9 @@
         viz.addEventListener('firstinteractive', (event) => {
           // Store original dimensions for scaling calculations
           originalWidth = viz.offsetWidth;
-          originalHeight = viz.workbook.activeSheet._workbookImpl._activeSheetImpl._sheetInfoImpl._sheetSize.maxSize.height;
+          originalHeight =
+            viz.workbook.activeSheet._workbookImpl._activeSheetImpl
+              ._sheetInfoImpl._sheetSize.maxSize.height;
           resizeViz();
         });
       }
@@ -98,7 +101,7 @@
       function resizeViz() {
         let containerWidth = tableauContainer.offsetWidth;
 
-        if (containerWidth <= 768) {
+        if (containerWidth <= mediaWidth) {
           // Phone layout: No scaling, auto height
           tableauContainer.style.transform = 'none';
           tableauContainer.style.height = 'auto';
@@ -121,8 +124,8 @@
 
         // Reload visualization if switching between phone and desktop layouts
         if (
-          (containerWidth <= 768 && currentDevice !== 'phone') ||
-          (containerWidth > 768 && currentDevice !== 'desktop')
+          (containerWidth <= mediaWidth && currentDevice !== 'phone') ||
+          (containerWidth > mediaWidth && currentDevice !== 'desktop')
         ) {
           loadViz();
         } else {
