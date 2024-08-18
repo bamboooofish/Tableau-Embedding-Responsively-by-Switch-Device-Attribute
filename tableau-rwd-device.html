@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Device-based Responsive Tableau Visualization</title>
+    <!-- Import the Tableau Embedding API -->
+    <script
+      type="module"
+      src="https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.js"
+    ></script>
+    <style>
+      /* Basic reset for all elements */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Center the Tableau visualization container horizontally */
+      .tableau-container {
+        display: flex;
+        justify-content: center;
+      }
+
+      /* Placeholder div to maintain aspect ratio and spacing */
+      .maintain-space {
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>
+      Lorem, ipsum dolor sit amet consectetur adipisicing elit. Similique porro
+      tenetur eius praesentium dolorum consectetur consequatur nostrum at
+      explicabo laboriosam eveniet inventore magnam, velit magni expedita
+      facilis cupiditate et impedit!
+    </p>
+
+    <!-- Container for the Tableau visualization -->
+    <div class="tableau-container"></div>
+
+    <!-- Placeholder div to maintain aspect ratio and spacing -->
+    <div class="maintain-space"></div>
+
+    <p>
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse temporibus
+      inventore nemo suscipit, officiis distinctio voluptate aliquam ut? Iste
+      alias in nobis libero dolore. Est quidem eligendi maxime. Iure, mollitia.
+    </p>
+
+    <script>
+      // Get references to important DOM elements
+      const tableauContainer = document.querySelector('.tableau-container');
+      const maintainSpace = document.querySelector('.maintain-space');
+      let originalWidth, originalHeight, viz;
+
+      // Tableau visualization source URL
+      let src =
+        'https://public.tableau.com/views/_17212102503700/sheet0?:language=zh-TW&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link';
+
+      // Function to load the Tableau dashboard
+      function loadViz() {
+        let containerWidth = tableauContainer.offsetWidth;
+
+        // Create new tableau-viz element
+        while (tableauContainer.firstChild) {
+          tableauContainer.removeChild(tableauContainer.firstChild);
+        }
+        const tableauViz = document.createElement('tableau-viz');
+        tableauViz.id = 'tableauViz';
+        tableauViz.setAttribute('src', src);
+
+        // Set device type based on container width
+        if (containerWidth <= 768) {
+          tableauViz.setAttribute('device', 'phone');
+        } else {
+          tableauViz.setAttribute('device', 'desktop');
+        }
+
+        // Add the newly created element to the container
+        tableauContainer.appendChild(tableauViz);
+
+        // Get reference to the new tableau-viz element
+        viz = document.querySelector('#tableauViz');
+
+        // Add event listener for when the visualization is first interactive
+        viz.addEventListener('firstinteractive', (event) => {
+          // Store original dimensions for scaling calculations
+          originalWidth = viz.offsetWidth;
+          originalHeight = viz.workbook.activeSheet._workbookImpl._activeSheetImpl._sheetInfoImpl._sheetSize.maxSize.height;
+          resizeViz();
+        });
+      }
+
+      // Function to resize the visualization based on container width
+      function resizeViz() {
+        let containerWidth = tableauContainer.offsetWidth;
+
+        if (containerWidth <= 768) {
+          // Phone layout: No scaling, auto height
+          tableauContainer.style.transform = 'none';
+          tableauContainer.style.height = 'auto';
+          maintainSpace.style.height = '0px';
+        } else {
+          // Desktop layout: Scale visualization and adjust spacing
+          let scale = Math.min(1, containerWidth / originalWidth);
+          // Add 27px for toolbar height; if the toolbar is hidden, this should be removed
+          let afterHeight = (originalHeight + 27) * scale;
+          tableauContainer.style.transform = `scale(${scale})`;
+          tableauContainer.style.height = '0px';
+          maintainSpace.style.height = `${afterHeight}px`;
+        }
+      }
+
+      // Function to handle window resize events
+      function handleResize() {
+        let containerWidth = tableauContainer.offsetWidth;
+        let currentDevice = viz.getAttribute('device');
+
+        // Reload visualization if switching between phone and desktop layouts
+        if (
+          (containerWidth <= 768 && currentDevice !== 'phone') ||
+          (containerWidth > 768 && currentDevice !== 'desktop')
+        ) {
+          loadViz();
+        } else {
+          // Otherwise, just resize the existing visualization
+          resizeViz();
+        }
+      }
+
+      // Initial load of the visualization
+      loadViz();
+
+      // Add event listener for window resize
+      window.addEventListener('resize', handleResize);
+    </script>
+  </body>
+</html>
