@@ -20,7 +20,7 @@
 
 ## Use it on Your Dashboard
 
-Replace the `src` URL and 'mediaWidth' width in the HTML to apply the same effect on your dashboard.
+Replace the `src` URL and `mediaWidth` width in the HTML to apply the same effect on your dashboard.
 ```html
 const src = 'https://public.tableau.com/views/_17212102503700/sheet0?:language=zh-TW&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link';
 const mediaWidth = 768;
